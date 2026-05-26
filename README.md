@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# investors.keyra.ie
 
-## Getting Started
+Secure institutional investor prospect and capital engagement platform for **Keyra** and **Ciright**.
 
-First, run the development server:
+## Architecture
+
+- **No local databases** — all persistence via Ciright Core / Keyra Core APIs
+- **Shared IDs** — `prospect_id`, `investor_id`, `person_id`, `content_asset_id`, etc.
+- **New prospects only** — active investors transition to `ir.keyra.ie` and `crm.keyra.ie`
+
+### Connected applications
+
+| App | Role |
+|-----|------|
+| `info.keyra.ie` | Deck & intelligence library |
+| `esig.keyra.ie` | NDA, SAFE, SPA execution |
+| `crm.keyra.ie` / `prospects.keyra.ie` | Lead sync & attribution |
+| `auth.keyra.ie` | Identity |
+| `core.ciright.com` | Core entities |
+
+## Stack
+
+- Next.js 16 (App Router)
+- React 19, TypeScript
+- Tailwind CSS 4
+- Framer Motion
+
+## Getting started
+
+Requires **Node.js 20.9+** (Next.js 16 requirement).
 
 ```bash
+cp .env.example .env.local
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Routes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Path | Description |
+|------|-------------|
+| `/` | Institutional landing |
+| `/register` | 5-step investor onboarding |
+| `/dashboard` | Private intelligence dashboard |
+| `/dashboard/content` | Materials library |
+| `/dashboard/data-room` | Secure diligence room |
+| `/dashboard/workflows` | NDA, meetings, interest |
 
-## Learn More
+## API integration
 
-To learn more about Next.js, take a look at the following resources:
+Server routes proxy to Core APIs (see `src/lib/api/`). Set `KEYRA_DEMO_MODE=true` for local UI development without Core connectivity.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Design
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Dark premium institutional UI (master application prompt). Typography and component patterns adapted from the Keyra design system (`designd.md`) with investor-portal-specific tokens in `src/app/globals.css`.
