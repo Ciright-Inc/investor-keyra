@@ -4,15 +4,15 @@ const PRODUCTION_INVESTORS = "https://investors.keyra.ie";
 
 /** Resolve investor portal origin (consistent on server + client for hydration). */
 export function getInvestorPortalOrigin(): string {
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return window.location.origin;
+  }
+
   const explicit = process.env.NEXT_PUBLIC_INVESTORS_URL?.trim().replace(/\/+$/, "");
   if (explicit) return explicit;
 
   if (process.env.NODE_ENV === "development") {
     return LOCAL_INVESTORS;
-  }
-
-  if (typeof window !== "undefined") {
-    return window.location.origin;
   }
 
   return PRODUCTION_INVESTORS;
