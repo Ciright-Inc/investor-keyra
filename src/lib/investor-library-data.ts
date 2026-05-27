@@ -51,10 +51,14 @@ type KeyraDocumentResponse = {
   }>;
 };
 
+function defaultKeyraLibraryBaseUrl(): string {
+  return process.env.NODE_ENV === "production" ? "https://admin.keyra.ie" : "http://localhost:3030";
+}
+
 const KEYRA_LIBRARY_BASE_URL =
   (process.env.KEYRA_LIBRARY_BASE_URL ??
     process.env.NEXT_PUBLIC_KEYRA_LIBRARY_BASE_URL ??
-    "http://localhost:3030").replace(/\/+$/, "");
+    defaultKeyraLibraryBaseUrl()).replace(/\/+$/, "");
 
 function absoluteFromKeyra(pathOrUrl?: string): string | undefined {
   const value = String(pathOrUrl ?? "").trim();
