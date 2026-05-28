@@ -20,10 +20,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const nextUser = await getSession();
       set((state) => {
-        const same =
-          state.user?.id === nextUser?.id && state.user?.phone === nextUser?.phone;
+        // undefined means "could not verify" (timeout/network) — keep current user
+        if (typeof nextUser === "undefined") return { ...state, hydrated: true };
+
+        const same = state.user?.id === nextUser?.id && state.user?.phone === nextUser?.phone;
         if (same && state.hydrated) return state;
-        if (nextUser === null && state.user !== null) return state;
         return { user: nextUser, hydrated: true };
       });
     } catch {

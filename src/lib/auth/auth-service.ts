@@ -10,7 +10,13 @@ export type AuthSessionUser = {
   profileComplete?: boolean;
 };
 
-export async function getSession(): Promise<AuthSessionUser | null> {
+/**
+ * Returns:
+ * - user: when authenticated
+ * - null: when request succeeded but session is not authenticated
+ * - undefined: when request failed (timeout/network) so callers can avoid false sign-out
+ */
+export async function getSession(): Promise<AuthSessionUser | null | undefined> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 1200);
   try {
@@ -31,7 +37,7 @@ export async function getSession(): Promise<AuthSessionUser | null> {
     };
     return json.authenticated ? json.user : null;
   } catch {
-    return null;
+    return undefined;
   } finally {
     clearTimeout(timeout);
   }
