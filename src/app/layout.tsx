@@ -24,6 +24,10 @@ export const metadata: Metadata = {
   description:
     "Secure institutional investor prospect and capital engagement platform for Keyra and Ciright infrastructure.",
   robots: { index: false, follow: false },
+  icons: {
+    icon: [{ url: "/favicon.png" }],
+    apple: [{ url: "/favicon.png" }],
+  },
 };
 
 export default function RootLayout({
@@ -39,6 +43,7 @@ export default function RootLayout({
     >
       <head>
         <AuthReturnInitScript />
+        <link rel="icon" href="/favicon.png" />
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
