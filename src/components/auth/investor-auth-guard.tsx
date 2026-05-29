@@ -16,7 +16,7 @@ export function InvestorAuthGuard({ children }: { children: React.ReactNode }) {
     ) {
       return;
     }
-    window.location.href = buildGetStartedSignInUrl("/dashboard");
+    window.location.href = buildGetStartedSignInUrl("/dashboard", window.location.origin);
   }, [hydrated, user]);
 
   if (!hydrated || !user) {

@@ -66,6 +66,8 @@ export function getAuthEntryPendingSnapshot(): boolean {
   return authReturnLatched;
 }
 
-export function buildInvestorReturnUrl(path = "/dashboard"): string {
-  return new URL(path, getInvestorPortalOrigin()).toString();
+/** @param portalOrigin Override (e.g. `window.location.origin`) so client links match the live host. */
+export function buildInvestorReturnUrl(path = "/dashboard", portalOrigin?: string): string {
+  const base = portalOrigin?.trim() || getInvestorPortalOrigin();
+  return new URL(path, base).toString();
 }
