@@ -15,14 +15,16 @@ export function InvestorPortalShell({ children }: InvestorPortalShellProps) {
 
   return (
     <div className="min-h-screen bg-[var(--ds-canvas)]" data-surface="dashboard">
-      <header className="flex h-14 items-center justify-between border-b border-[var(--ds-hairline-strong)] bg-[var(--ds-canvas)] px-[clamp(20px,4vw,48px)]">
-        <KeyraLogo href="/dashboard" size="md" variant="on-light" />
-        <div className="flex items-center gap-4">
-          <p className="hidden text-sm text-[var(--ds-muted)] sm:block">{welcome}</p>
-          <InvestorUserMenu />
+      <header className="fixed top-0 z-50 w-full border-b border-[var(--ds-hairline-strong)] bg-[var(--ds-canvas)]">
+        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-[clamp(20px,4vw,48px)]">
+          <KeyraLogo href="/dashboard" size="md" variant="on-light" />
+          <div className="flex items-center gap-4">
+            <p className="hidden text-sm text-[var(--ds-muted)] sm:block">{welcome}</p>
+            <InvestorUserMenu />
+          </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-[1200px] px-[clamp(20px,4vw,48px)] py-8">
+      <main className="mx-auto w-full max-w-[1200px] px-[clamp(20px,4vw,48px)] pb-8 pt-24">
         {children}
       </main>
     </div>

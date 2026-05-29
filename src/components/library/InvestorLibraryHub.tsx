@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import type { DocumentItem, MaterialItem } from "@/lib/investor-library-data";
 
@@ -76,6 +76,24 @@ type InvestorLibraryHubProps = {
   documents: DocumentItem[];
 };
 
+function matchesLibraryQuery(query: string, ...fields: (string | undefined)[]): boolean {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return true;
+  return fields.some((field) => field?.toLowerCase().includes(normalized));
+}
+
+function filterMaterials(items: MaterialItem[], query: string) {
+  return items.filter((item) =>
+    matchesLibraryQuery(query, item.title, item.fileName, item.kind, item.sizeLabel),
+  );
+}
+
+function filterDocuments(items: DocumentItem[], query: string) {
+  return items.filter((item) =>
+    matchesLibraryQuery(query, item.title, item.fileName, item.kind, item.sizeLabel),
+  );
+}
+
 function EmptyLibraryState({ label }: { label: string }) {
   return (
     <div className="col-span-full rounded-lg border border-dashed border-[var(--ds-hairline-strong)] bg-[var(--ds-canvas)] px-6 py-10 text-center">
@@ -87,27 +105,99 @@ function EmptyLibraryState({ label }: { label: string }) {
   );
 }
 
+function NoSearchResultsState({ query }: { query: string }) {
+  return (
+    <div className="col-span-full rounded-lg border border-dashed border-[var(--ds-hairline-strong)] bg-[var(--ds-canvas)] px-6 py-10 text-center">
+      <p className="text-sm font-semibold text-[var(--ds-ink)]">No results found</p>
+      <p className="mt-1 text-sm text-[var(--ds-body)]">
+        Nothing matches &ldquo;{query.trim()}&rdquo;. Try a different title or file name.
+      </p>
+    </div>
+  );
+}
+
+type LibrarySearchFieldProps = {
+  id: string;
+  label: string;
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function LibrarySearchField({ id, label, placeholder, value, onChange }: LibrarySearchFieldProps) {
+  return (
+    <div className="w-full">
+      <label htmlFor={id} className="sr-only">
+        {label}
+      </label>
+      <div className="relative w-full">
+        <Icon
+          name="search"
+          size={20}
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ds-muted)]"
+        />
+        <input
+          id={id}
+          type="search"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="ds-text-input w-full !pl-10"
+          autoComplete="off"
+          spellCheck={false}
+        />
+      </div>
+    </div>
+  );
+}
+
 export function InvestorLibraryHub({ materials, documents }: InvestorLibraryHubProps) {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
   const activeTab: LibraryTab = tabParam === "data-room" ? "data-room" : "materials";
+  const [materialsSearch, setMaterialsSearch] = useState("");
+  const [dataRoomSearch, setDataRoomSearch] = useState("");
 
   const setTabHref = useCallback(
     (tab: LibraryTab) => (tab === "materials" ? "/dashboard" : "/dashboard?tab=data-room"),
     [],
   );
 
+  const filteredMaterials = useMemo(
+    () => filterMaterials(materials, materialsSearch),
+    [materials, materialsSearch],
+  );
+  const filteredDocuments = useMemo(
+    () => filterDocuments(documents, dataRoomSearch),
+    [documents, dataRoomSearch],
+  );
+
+  const activeSearch = activeTab === "materials" ? materialsSearch : dataRoomSearch;
+
   const grid = useMemo(() => {
     if (activeTab === "data-room") {
       if (documents.length === 0) return <EmptyLibraryState label="data room documents" />;
-      return documents.map((item) => <DocumentCard key={item.id} item={item} />);
+      if (filteredDocuments.length === 0 && activeSearch.trim()) {
+        return <NoSearchResultsState query={activeSearch} />;
+      }
+      return filteredDocuments.map((item) => <DocumentCard key={item.id} item={item} />);
     }
     if (materials.length === 0) return <EmptyLibraryState label="materials" />;
-    return materials.map((item) => <MaterialCard key={item.id} item={item} />);
-  }, [activeTab, documents, materials]);
+    if (filteredMaterials.length === 0 && activeSearch.trim()) {
+      return <NoSearchResultsState query={activeSearch} />;
+    }
+    return filteredMaterials.map((item) => <MaterialCard key={item.id} item={item} />);
+  }, [
+    activeSearch,
+    activeTab,
+    documents.length,
+    filteredDocuments,
+    filteredMaterials,
+    materials.length,
+  ]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="grid gap-3 sm:grid-cols-2">
         <Link
           href={setTabHref("materials")}
@@ -130,6 +220,24 @@ export function InvestorLibraryHub({ materials, documents }: InvestorLibraryHubP
           <span className="investor-tab-sub">Documents, PDFs, and financials</span>
         </Link>
       </div>
+
+      {activeTab === "materials" ? (
+        <LibrarySearchField
+          id="materials-search"
+          label="Search materials"
+          placeholder="Search materials by title or file name…"
+          value={materialsSearch}
+          onChange={setMaterialsSearch}
+        />
+      ) : (
+        <LibrarySearchField
+          id="data-room-search"
+          label="Search data room"
+          placeholder="Search documents by title or file name…"
+          value={dataRoomSearch}
+          onChange={setDataRoomSearch}
+        />
+      )}
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">{grid}</div>
     </div>
